@@ -7,7 +7,7 @@ import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 
 import { Initializable } from "@openzeppelin/upgrades/contracts/Initializable.sol";
-import { InitializableGovernableWhitelist } from "@mstable/contracts/contracts/governance/InitializableGovernableWhitelist.sol";
+import { InitializableGovernableWhitelist } from "@mstable/protocol/contracts/governance/InitializableGovernableWhitelist.sol";
 
 contract MerkleDrop is Initializable, InitializableGovernableWhitelist {
 
