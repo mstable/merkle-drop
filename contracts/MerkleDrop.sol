@@ -188,7 +188,7 @@ contract MerkleDrop is Initializable, InitializableGovernableWhitelist {
         if (_balance > 0) {
             token.safeTransfer(_liquidityProvider, _balance);
         } else {
-            revert("No balance would be transfered - not gonna waste your gas");
+            revert("No balance would be transferred - not going to waste your gas");
         }
     }
 }

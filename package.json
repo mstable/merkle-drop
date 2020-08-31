@@ -58,6 +58,7 @@
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.18.3",
+    "ethereumjs-util": "^7.0.4",
     "ethlint": "^1.2.5",
     "humanize-duration": "^3.21.0",
     "mocha": "^7.0.1",

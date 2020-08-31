@@ -25,7 +25,9 @@ module.exports = {
         }
     },
     "rules": {
-        "@typescript-eslint/no-use-before-define": 1
+        "@typescript-eslint/no-use-before-define": 1,
+        "import/prefer-default-export": "off",
+        "no-plusplus": "off",
     },
     "overrides": [
         {
@@ -35,7 +37,7 @@ module.exports = {
                 "./types/chai.d.ts",
                 "./types/interfaces.d.ts",
                 "./types/**/*.ts",
-                "./test/*.ts",
+                "./contracts/tests/TToken.sol",
                 "./scripts/**/*.ts",
                 "./test/**/*.ts",
                 "./test-utils/*.ts",
