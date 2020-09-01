@@ -1,6 +1,4 @@
 import { expectEvent, expectRevert } from '@openzeppelin/test-helpers'
-
-// eslint-disable-next-line import/no-extraneous-dependencies
 import BN from 'bn.js'
 
 import { MerkleDropInstance, TTokenInstance } from '../types/generated'
@@ -76,7 +74,7 @@ contract('MerkleDrop', accounts => {
       (prev, balances) =>
         prev.add(
           Object.values(balances).reduce(
-            (prev, current) => prev.add(current.balance),
+            (trancheAmount, { balance }) => trancheAmount.add(balance),
             new BN(0),
           ),
         ),

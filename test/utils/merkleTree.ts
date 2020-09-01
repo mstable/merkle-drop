@@ -2,7 +2,6 @@
 
 import { bufferToHex, keccak256, keccakFromString } from 'ethereumjs-util'
 import { hexToBytes, soliditySha3 } from 'web3-utils'
-// eslint-disable-next-line import/no-extraneous-dependencies
 import BN from 'bn.js'
 
 import { TrancheBalances } from '../types'
