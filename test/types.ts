@@ -1,3 +1,11 @@
-import BN from 'bn.js'
+import { BigNumber } from 'ethers'
 
-export type TrancheBalances = Record<string, { balance: BN; claimed?: boolean }>
+export interface TrancheBalances {
+  [account: string]: { balance: BigNumber; claimed?: boolean }
+}
+
+// [account, balance] | [account, balance, claimed]
+export type AccountBalancesTuple = (
+  | [string, string]
+  | [string, string, boolean]
+)[]

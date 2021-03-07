@@ -1,12 +1,24 @@
-# Merkle-drop
+# `@mstable/merkle-drop`
 
-A lightweight Merkle Drop contract 
+A lightweight Merkle Drop contract.
 
-## Prerequisites
+This project uses Hardhat.
 
-* [Node.js][1]
+## Usage
 
-## Installation
+### Deployment
+
+    yarn task deploy --token 0xTOKEN --funders 0xFUNDER
+
+### Adding a new tranche
+
+    yarn task add-tranche --contract 0xMERKLEDROP --json ./tranche1.json
+
+### Installation in your project
+
+    yarn add @mstable/merkle-drop
+
+### Local development
 
     yarn install
 
@@ -14,28 +26,10 @@ A lightweight Merkle Drop contract
 
     yarn test
 
-## Deployment
+### Coverage
 
-### Local deployment 
+    yarn coverage
 
-Start an instance of `ganache-cli`
+### Linting
 
-    ganache-cli -p 7545 -l 8000000
-  
-Run the migration
-
-    yarn migrate
-
-### Rinkeby / Kovan
-
-Edit `truffle-config.js`, and add a mnemonic for the `HDWalletProvider` for a private key that is funded. 
-
-#### Deploy to Kovan
-
-    yarn migrate:kovan
-
-#### Deploy to Ropsten 
-
-    yarn migrate:Ropsten
-
-[1]: https://nodejs.org/
+    yarn lint

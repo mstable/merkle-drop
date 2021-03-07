@@ -2,9 +2,7 @@
 
 import { bufferToHex, keccak256, keccakFromString } from 'ethereumjs-util'
 import { hexToBytes, soliditySha3 } from 'web3-utils'
-import BN from 'bn.js'
-
-import { TrancheBalances } from '../types'
+import { BigNumber } from 'ethers'
 
 // Merkle tree called with 32 byte hex values
 export class MerkleTree {
@@ -13,11 +11,11 @@ export class MerkleTree {
   private readonly layers: Buffer[][]
 
   private static bufArrToHexArr(arr: Buffer[]): string[] {
-    if (arr.some(el => !Buffer.isBuffer(el))) {
+    if (arr.some((el) => !Buffer.isBuffer(el))) {
       throw new Error('Array is not an array of buffers')
     }
 
-    return arr.map(el => `0x${el.toString('hex')}`)
+    return arr.map((el) => `0x${el.toString('hex')}`)
   }
 
   private static sortAndConcat(...args: Buffer[]): Buffer {
@@ -76,7 +74,7 @@ export class MerkleTree {
 
   private getLayers(): Buffer[][] {
     if (this.elements.length === 0) {
-      return ([['']] as unknown) as Buffer[][]
+      return [['']] as unknown as Buffer[][]
     }
 
     const layers = []
@@ -98,8 +96,8 @@ export class MerkleTree {
 
   constructor(elements: string[]) {
     this.elements = elements
-      .filter(el => el)
-      .map(el => Buffer.from(hexToBytes(el)))
+      .filter((el) => el)
+      .map((el) => Buffer.from(hexToBytes(el)))
 
     // Sort elements
     this.elements.sort(Buffer.compare)
@@ -150,19 +148,19 @@ export class MerkleTree {
 }
 
 export const createTreeWithAccounts = (
-  accounts: TrancheBalances,
+  accounts: Record<string, { balance: BigNumber }>,
 ): MerkleTree => {
   const elements = Object.entries(accounts).map(([account, { balance }]) =>
     soliditySha3(account, balance.toString()),
-  )
+  ) as string[]
   return new MerkleTree(elements)
 }
 
 export const getAccountBalanceProof = (
   tree: MerkleTree,
   account: string,
-  balance: BN,
+  balance: BigNumber,
 ) => {
-  const element = soliditySha3(account, balance.toString())
+  const element = soliditySha3(account, balance.toString()) as string
   return tree.getHexProof(element)
 }
