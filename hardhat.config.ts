@@ -8,8 +8,6 @@ import 'tsconfig-paths/register'
 
 import type { HardhatUserConfig } from 'hardhat/config'
 
-import './tasks/deploy'
-
 const hardhatConfig: HardhatUserConfig = {
   networks: {
     hardhat: { allowUnlimitedContractSize: true, blockGasLimit: 9500000 },
@@ -28,7 +26,7 @@ const hardhatConfig: HardhatUserConfig = {
     },
   },
   solidity: {
-    version: '0.8.4',
+    version: '0.8.7',
     settings: {
       optimizer: {
         enabled: true,

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-pragma solidity 0.8.4;
+pragma solidity ^0.8.6;
 
 import { MerkleProof } from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -9,12 +9,14 @@ import { SafeMath } from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 import { Initializable } from "./@openzeppelin-2.5/Initializable.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { PackedBooleanArray } from "packed-solidity-arrays/contracts/PackedBooleanArray.sol";
 
 import "hardhat/console.sol";
 
 contract MerkleDrop is Initializable, Ownable {
   using SafeERC20 for IERC20;
   using SafeMath for uint256;
+  using PackedBooleanArray for PackedBooleanArray.PackedArray;
 
   event Claimed(address claimant, uint256 tranche, uint256 balance);
   event TrancheAdded(uint256 tranche, bytes32 merkleRoot, uint256 totalAmount);
@@ -25,7 +27,7 @@ contract MerkleDrop is Initializable, Ownable {
   IERC20 public token;
 
   mapping(uint256 => bytes32) public merkleRoots;
-  mapping(address => uint256) public lastTrancheClaimed;
+  mapping(address => PackedBooleanArray.PackedArray) public claimed;
   mapping(address => bool) public funders;
   uint256 tranches;
 
@@ -113,37 +115,27 @@ contract MerkleDrop is Initializable, Ownable {
     bytes32[] memory _merkleProof
   ) public {
     require(_tranche < tranches, "Tranche cannot be in the future");
-    require(
-      lastTrancheClaimed[_claimer] == 0 || lastTrancheClaimed[_claimer] < _tranche,
-      "Address has already claimed"
-    );
 
     _claimTranche(_claimer, _tranche, _balance, _merkleProof);
     _disburse(_claimer, _balance);
-    lastTrancheClaimed[_claimer] = _tranche;
   }
 
   function claimTranches(
     address _claimer,
-    uint256 _first,
-    uint256 _last,
+    uint256[] memory _ids,
     uint256[] memory _balances,
     bytes32[][] memory _merkleProofs
   ) public {
-    uint256 len = _last - _first;
+    uint256 len = _ids.length;
 
-    require(_first < _last && len > 0, "First must be < last");
-    require(len + 1 == _balances.length && _balances.length == _merkleProofs.length, "Mismatching inputs");
-    require(_last < tranches, "Tranche cannot be in the future");
-    require(lastTrancheClaimed[_claimer] == 0 || lastTrancheClaimed[_claimer] < _first, "Address has already claimed");
+    require(len > 0, "First must be < last");
+    require(len == _balances.length && len == _merkleProofs.length, "Mismatching inputs");
 
     uint256 totalBalance = 0;
     for (uint256 i = 0; i <= len; i++) {
-      _claimTranche(_claimer, _first + i, _balances[i], _merkleProofs[i]);
+      _claimTranche(_claimer, _ids[i], _balances[i], _merkleProofs[i]);
       totalBalance = totalBalance.add(_balances[i]);
     }
-
-    lastTrancheClaimed[_claimer] = _last;
 
     _disburse(_claimer, totalBalance);
   }
@@ -167,7 +159,12 @@ contract MerkleDrop is Initializable, Ownable {
     uint256 _balance,
     bytes32[] memory _merkleProof
   ) private {
+    require(
+      !claimed[_claimer].getValue(_tranche),
+      "Address has already claimed"
+    );
     require(_verifyClaim(_claimer, _tranche, _balance, _merkleProof), "Incorrect merkle proof");
+    claimed[_claimer].setValue(_tranche, true);
     emit Claimed(_claimer, _tranche, _balance);
   }
 
