@@ -4,9 +4,9 @@ module.exports = {
   buildDirPath: '/build',
   dir: '.',
   providerOptions: {
-    "gasLimit": 0xfffffffffff,
-    "callGasLimit": 0xfffffffffff,
-    "allowUnlimitedContractSize": true
+    gasLimit: 0xfffffffffff,
+    callGasLimit: 0xfffffffffff,
+    allowUnlimitedContractSize: true,
   },
   silent: false,
   // client: require("ganache-core"),
@@ -15,6 +15,8 @@ module.exports = {
     'Migrations.sol',
     'interfaces',
     'integrations',
+    'tests',
+    '@openzeppelin-2.5',
     'z_mocks',
-  ]
-};
+  ],
+}

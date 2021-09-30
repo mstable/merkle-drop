@@ -1,19 +1,19 @@
-import BN from 'bn.js'
+import { BigNumber, BigNumberish } from 'ethers'
 
 export const simpleToExactAmount = (
-  amount: number | string | BN,
-  decimals: number | BN = 18,
-): BN => {
+  amount: BigNumberish,
+  decimals: number | BigNumber = 18,
+): BigNumber => {
   // Code is largely lifted from the guts of web3 toWei here:
   // https://github.com/ethjs/ethjs-unit/blob/master/src/index.js
   let amountString = amount.toString()
-  const decimalsBN = new BN(decimals)
+  const decimalsBN = BigNumber.from(decimals)
 
-  if (decimalsBN.gt(new BN(100))) {
+  if (decimalsBN.gt(BigNumber.from(100))) {
     throw new Error(`Invalid decimals amount`)
   }
 
-  const scale = new BN(10).pow(new BN(decimals))
+  const scale = BigNumber.from(10).pow(BigNumber.from(decimals))
   const scaleString = scale.toString()
 
   // Is it negative?
@@ -54,12 +54,12 @@ export const simpleToExactAmount = (
     fraction += '0'
   }
 
-  const wholeBN = new BN(whole)
-  const fractionBN = new BN(fraction)
+  const wholeBN = BigNumber.from(whole)
+  const fractionBN = BigNumber.from(fraction)
   let result = wholeBN.mul(scale).add(fractionBN)
 
   if (negative) {
-    result = result.mul(new BN('-1'))
+    result = result.mul(BigNumber.from('-1'))
   }
 
   return result
