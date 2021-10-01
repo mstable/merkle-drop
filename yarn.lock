@@ -9617,10 +9617,10 @@ package-hash@^4.0.0:
     lodash.flattendeep "^4.4.0"
     release-zalgo "^1.0.0"
 
-packed-solidity-arrays@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/packed-solidity-arrays/-/packed-solidity-arrays-1.0.1.tgz#6ded1343561092ae2830e790025629151f7c2ad3"
-  integrity sha512-Ygvr9uw0oQaHN1U66g2E37rh/WSuzlko/nVSTvB5mcvZ9zZtTu4TYimzFFCYrM2d133VnGyhRoGfRAkTKuTaBA==
+packed-solidity-arrays@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/packed-solidity-arrays/-/packed-solidity-arrays-1.1.0.tgz#241991863c0d29e30efd15de70653f65bf4aaaa4"
+  integrity sha512-DX4bPuv4EWgzvYBgK0fsZ/aI7cfsmTPq7qomYRfrZNmFs2jb10Urto50nAt08OAbPrZujvOYGMbdTQeAes2QZg==
   dependencies:
     "@nomiclabs/hardhat-ethers" "^2.0.2"
     "@nomiclabs/hardhat-waffle" "^2.0.1"

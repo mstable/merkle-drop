@@ -79,7 +79,7 @@ describe('MerkleDrop', () => {
     // Add tranches
     return Promise.all(
       tranches.map(async (balances, index) => {
-        const tranche = (index + 1).toString()
+        const tranche = index.toString()
 
         const tree = createTreeWithAccounts(balances)
         const merkleRoot = tree.hexRoot
@@ -137,19 +137,12 @@ describe('MerkleDrop', () => {
     const deployedMerkleDrop = await waffle.deployContract(
       funder,
       merkleDropArtifact,
-      [],
+      [token.address],
     )
     merkleDrop = MerkleDrop__factory.connect(deployedMerkleDrop.address, funder)
   })
 
   describe('without initialisation', () => {
-    it('should require funders', async () => {
-      await expectRevert(
-        merkleDrop.initialize([], token.address),
-        'Empty funders array',
-      )
-    })
-
     it('only allows funders to seed new allocations', async () => {
       const amount = simpleToExactAmount('1000')
       const tree = createTreeWithAccounts({
@@ -175,7 +168,7 @@ describe('MerkleDrop', () => {
   describe('with initialisation', () => {
     beforeEach(async () => {
       // Initialize MerkleDrop
-      await merkleDrop.initialize([funder.address], token.address)
+      await merkleDrop.addFunder(funder.address)
 
       // Mint TToken (large amount)
       const amount = simpleToExactAmount('100000000')
@@ -479,8 +472,7 @@ describe('MerkleDrop', () => {
 
         const claimPromise = merkleDrop.claimTranches(
           acctWithNoClaim.address,
-          tranche1,
-          tranche2,
+          [tranche1, tranche2],
           balances,
           [proof1, proof2],
         )
@@ -520,8 +512,7 @@ describe('MerkleDrop', () => {
 
         const claimPromise = merkleDrop.claimTranches(
           claimantAcct.address,
-          tranche1,
-          tranche2,
+          [tranche1, tranche2],
           balances,
           [proof1, proof2],
         )
@@ -561,8 +552,10 @@ describe('MerkleDrop', () => {
 
         const claimPromise = merkleDrop.claimTranches(
           claimantAcct.address,
-          2, // Tranche 1 exists
-          3, // but tranche 2 doesn't exist yet)
+          [
+            2, // Tranche 1 exists
+            3, // but tranche 2 doesn't exist yet
+          ],
           balances,
           proofs,
         )
@@ -607,8 +600,7 @@ describe('MerkleDrop', () => {
 
         const claimPromise = merkleDrop.claimTranches(
           claimantAcct.address,
-          tranche1,
-          tranche2,
+          [tranche1, tranche2],
           balances,
           proofs,
         )
@@ -651,19 +643,7 @@ describe('MerkleDrop', () => {
         await expectRevert(
           merkleDrop.claimTranches(
             claimantAcct.address,
-            0, // No tranches
-            0,
-            balances,
-            proofs,
-          ),
-          'First must be < last',
-        )
-
-        await expectRevert(
-          merkleDrop.claimTranches(
-            claimantAcct.address,
-            tranche1,
-            tranche2,
+            [tranche1, tranche2],
             [balances[0]], // one balance
             proofs,
           ),
@@ -673,8 +653,7 @@ describe('MerkleDrop', () => {
         await expectRevert(
           merkleDrop.claimTranches(
             claimantAcct.address,
-            tranche1,
-            tranche2,
+            [tranche1, tranche2],
             [...balances, simpleToExactAmount('100')], // extra balance
             proofs,
           ),
@@ -684,8 +663,7 @@ describe('MerkleDrop', () => {
         await expectRevert(
           merkleDrop.claimTranches(
             claimantAcct.address,
-            tranche1,
-            tranche2,
+            [tranche1, tranche2],
             balances,
             [], // no proofs
           ),
@@ -695,8 +673,7 @@ describe('MerkleDrop', () => {
         await expectRevert(
           merkleDrop.claimTranches(
             claimantAcct.address,
-            tranche1,
-            tranche2,
+            [tranche1, tranche2],
             balances,
             [proofs[0]], // one proof
           ),
@@ -706,8 +683,7 @@ describe('MerkleDrop', () => {
         await expectRevert(
           merkleDrop.claimTranches(
             claimantAcct.address,
-            tranche1,
-            tranche2,
+            [tranche1, tranche2],
             balances,
             [...proofs, proofs[0]], // extra proof
           ),
@@ -749,8 +725,7 @@ describe('MerkleDrop', () => {
 
         const claimTx = await merkleDrop.claimTranches(
           claimantAcct.address,
-          tranche1,
-          tranche2,
+          [tranche1, tranche2],
           balances,
           proofs,
         )
@@ -804,8 +779,7 @@ describe('MerkleDrop', () => {
           acctWithNoClaim,
         ).claimTranches(
           claimantAcct.address,
-          tranche1,
-          tranche2,
+          [tranche1, tranche2],
           balances,
           proofs,
         )
@@ -859,8 +833,7 @@ describe('MerkleDrop', () => {
           acctWithNoClaim,
         ).claimTranches(
           claimantAcct.address,
-          tranche1,
-          tranche2,
+          [tranche1, tranche2],
           balances,
           proofs,
         )

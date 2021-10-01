@@ -67,7 +67,7 @@
     "husky": "^7.0.2",
     "mocha": "^8.4.0",
     "nyc": "^15.1.0",
-    "packed-solidity-arrays": "^1.0.1",
+    "packed-solidity-arrays": "^1.1.0",
     "parse-duration": "^1.0.0",
     "prettier": "^2.3.0",
     "prettier-plugin-solidity": "^1.0.0-beta.18",
