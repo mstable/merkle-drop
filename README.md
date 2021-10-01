@@ -1,3 +1,5 @@
+![CI](https://github.com/mstable/merkle-drop/workflows/Test/badge.svg)
+
 # `@mstable/merkle-drop`
 
 A lightweight Merkle Drop contract.
