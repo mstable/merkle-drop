@@ -21,17 +21,13 @@ const hardhatConfig: HardhatUserConfig = {
     env: { url: process.env.RPC_URL || '' },
     ropsten: {
       url: process.env.RPC_URL || '',
-      accounts: process.env.ROPSTEN_PRIVATE_KEY1
-        ? [process.env.ROPSTEN_PRIVATE_KEY1]
-        : [],
+      accounts: process.env.MNEMONIC ? { mnemonic: process.env.MNEMONIC } : [],
       gasPrice: 30000000000,
       blockGasLimit: 8000000,
     },
     kovan: {
       url: process.env.RPC_URL || '',
-      accounts: process.env.KOVAN_MNEMONIC
-        ? { mnemonic: process.env.KOVAN_MNEMONIC }
-        : [],
+      accounts: process.env.MNEMONIC ? { mnemonic: process.env.MNEMONIC } : [],
       gasPrice: 30000000000,
       blockGasLimit: 8000000,
     },
