@@ -7,9 +7,13 @@ import 'solidity-coverage'
 import type { HardhatUserConfig } from 'hardhat/config'
 
 const hardhatConfig: HardhatUserConfig = {
-  defaultNetwork: 'hardhat',
   networks: {
-    hardhat: { allowUnlimitedContractSize: true, blockGasLimit: 9500000 },
+    hardhat: {
+      allowUnlimitedContractSize: true,
+      gas: 'auto',
+      gasPrice: 1,
+      initialBaseFeePerGas: 1,
+    },
     localhost: { url: 'http://localhost:8545' },
     fork: { url: 'http://localhost:7545' },
     // export the RPC_URL environment variable to use remote nodes like Alchemy or Infura. eg
