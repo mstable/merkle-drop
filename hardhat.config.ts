@@ -1,3 +1,4 @@
+import './tasks/registerMerkleDrop'
 import './tasks/deployMerkleDrop'
 import './tasks/deployMerkleDropTranches'
 import './tasks/seedNewAllocations'
