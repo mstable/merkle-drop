@@ -45,7 +45,7 @@ const inEvents = (
       try {
         contains(e.args ?? {}, k, v)
       } catch (error) {
-        exception.push(error)
+        exception.push(error as Error)
         return false
       }
     }

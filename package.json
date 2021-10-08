@@ -20,7 +20,9 @@
     "coverage": "yarn hardhat compile --force && node --max_old_space_size=6144 node_modules/.bin/hardhat coverage --testfiles 'test/**/*.spec.ts' --show-stack-traces",
     "task": "yarn hardhat --config tasks.config.ts",
     "test": "yarn hardhat test",
-    "compile": "yarn hardhat compile --force",
+    "clean": "TS_NODE_TRANSPILE_ONLY=true yarn hardhat clean",
+    "compile": "TS_NODE_TRANSPILE_ONLY=true yarn hardhat compile --force",
+    "typechain": "TS_NODE_TRANSPILE_ONLY=true yarn hardhat --config ./hardhat.base.config.ts typechain",
     "prettify": "prettier --write tasks/**/*.ts tasks/*.ts test/**/*.ts test/*.ts contracts/**/*.sol contracts/*.sol",
     "flatten": "sol-merger \"./contracts/**/*.sol\" ./_flat",
     "prepublishOnly": "yarn run compile"
@@ -83,14 +85,16 @@
     "solhint": "^3.3.6",
     "solidity-coverage": "^0.7.16",
     "ts-generator": "^0.1.1",
-    "ts-node": "^10.0.0",
-    "tsconfig-paths": "^3.9.0",
-    "typechain": "^5.0.0",
-    "typescript": "4.2.2",
+    "ts-node": "^10.2.1",
+    "typechain": "^5.1.2",
+    "typescript": "^4.4.3",
     "web3-core": "^1.6.0",
     "web3-core-helpers": "^1.6.0"
   },
   "dependencies": {
     "ipfs-http-client": "^53.0.1"
+  },
+  "resolutions": {
+    "ts-node": "^10.2.1"
   }
 }

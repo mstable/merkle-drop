@@ -7,10 +7,10 @@ const expectException = async <T>(
   try {
     await promise
   } catch (error) {
-    if (error.message.indexOf(expectedError) === -1) {
+    if ((error as Error).message.indexOf(expectedError) === -1) {
       // When the exception was a revert, the resulting string will include only
       // the revert reason, otherwise it will be the type of exception (e.g. 'invalid opcode')
-      const actualError = error.message.replace(
+      const actualError = (error as Error).message.replace(
         /(Returned error|Error): VM Exception while processing transaction: (revert )?/,
         '',
       )

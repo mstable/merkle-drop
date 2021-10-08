@@ -3,6 +3,7 @@ import 'tsconfig-paths/register'
 import { task, types } from 'hardhat/config'
 import { create } from 'ipfs-http-client'
 import { promises as fs } from 'fs'
+import { URL } from 'url'
 
 import { MerkleDropTranches__factory } from '../types/generated'
 import { addressType } from './params'
