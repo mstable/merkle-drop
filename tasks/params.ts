@@ -5,6 +5,10 @@ import { isValidAddress } from 'ethereumjs-util'
 import { HardhatError } from 'hardhat/internal/core/errors'
 import { ERRORS } from 'hardhat/internal/core/errors-list'
 
+type Balances = Record<string, string>
+
+type BalancesBN = Record<string, { balance: BigNumber }>
+
 export const addressType: CLIArgumentType<string> = {
   name: 'address',
   parse: (argName, strValue) => strValue,
@@ -21,16 +25,12 @@ export const addressType: CLIArgumentType<string> = {
   },
 }
 
-const parseJsonMapping = async (
-  filePath: string,
-): Promise<Record<string, string>> => {
+const parseJsonMapping = async (filePath: string): Promise<Balances> => {
   const body = await fs.readFile(filePath, 'utf8')
   return JSON.parse(body)
 }
 
-export const jsonBalancesType: CLIArgumentType<
-  Promise<Record<string, { balance: BigNumber }>>
-> = {
+export const jsonBalancesType: CLIArgumentType<Promise<BalancesBN>> = {
   name: 'JSON address => balance mapping',
   parse: async (argName, strValue) => {
     const mapping = await parseJsonMapping(strValue)
@@ -42,21 +42,19 @@ export const jsonBalancesType: CLIArgumentType<
       {},
     )
   },
-  validate: async (argName: string, value: unknown): Promise<void> => {
-    let isValid = false
-    const isValidFile = typeof value === 'string' && (await fs.stat(value))
+  validate: async (
+    argName: string,
+    balancesPromise: Promise<BalancesBN>,
+  ): Promise<void> => {
+    const balances = await balancesPromise
 
-    if (isValidFile) {
-      const mapping = await parseJsonMapping(value as string)
-      isValid = Object.entries(mapping).every(
-        ([address, balance]) =>
-          isValidAddress(address) && utils.parseUnits(balance).gt(0),
-      )
-    }
+    const isValid = Object.entries(balances).every(
+      ([address, { balance }]) => isValidAddress(address) && balance.gte(0),
+    )
 
     if (!isValid) {
       throw new HardhatError(ERRORS.ARGUMENTS.INVALID_VALUE_FOR_TYPE, {
-        value,
+        value: balances,
         name: argName,
         type: jsonBalancesType.name,
       })

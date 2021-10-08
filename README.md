@@ -6,15 +6,41 @@ A lightweight Merkle Drop contract.
 
 This project uses Hardhat.
 
-## Usage
+## Basic workflow
 
-### Deployment
+- Use the `deployMerkleDrop` task to deploy a MerkleDrop
+- Create a JSON balances file for each tranche
+- Use the `seedNewAllocations` task to add a new tranche with JSON balances
 
-    yarn task deploy --token 0xTOKEN --funders 0xFUNDER
+## Pro workflow
 
-### Adding a new tranche
+- Use `MerkleDropTranches` to track `MerkleDrop` contracts on the subgraph (task: `registerMerkleDrop`)
+- Use the `addTrancheURI` task to set the URI for the tranche to an IPFS hash of the JSON balances
+- On frontends etc, use the subgraph and tranche URI to generate proofs for claims
 
-    yarn task add-tranche --contract 0xMERKLEDROP --json ./tranche1.json
+## Hardhat Tasks
+
+### Deploying MerkleDrop
+
+    yarn hardhat deployMerkleDrop --token 0x... --funders 0x...,0x...
+
+### Seeding new allocations (adding a tranche)
+
+    yarn hardhat seedNewAllocations --merkle-drop 0x... --balances ./tranche0.json
+
+### Deploying MerkleDropTranches
+
+    yarn hardhat deployMerkleDropTranches
+
+### Registering a MerkleDrop on MerkleDropTranches (useful for subgraphs)
+
+    yarn hardhat registerMerkleDrop --merkle-drop-tranches 0x... --merkle-drop 0x...
+
+### Adding a new tranche URI (useful for subgraphs)
+
+    yarn hardhat addTrancheURI --merkle-drop-tranches 0x... --merkle-drop 0x... --id 0  --balances ./tranche0.json
+
+## Development
 
 ### Installation in your project
 
@@ -35,3 +61,61 @@ This project uses Hardhat.
 ### Linting
 
     yarn lint
+
+## Subgraph
+
+This project includes a subgraph: `./subgraph`
+
+[See the Kovan Deployment here](https://thegraph.com/hosted-service/subgraph/mstable/mstable-merkle-drop-kovan)
+
+### Example usage
+
+```graphql
+query {
+  merkleDrops {
+    id
+    tranches {
+      trancheId
+      uri
+      merkleRoot
+      claims(where: { account_ends_with: "0x9167be9ece1a7f20c22ceadbe4fafafcd88d655d" }) {
+        amount
+        claimed
+        account {
+          lastClaimedTranche {
+            trancheId
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+```json
+{
+  "data": {
+    "merkleDrops": [
+      {
+        "id": "0x4278efcaef614b462d9193c7aa06e67a685bb586",
+        "tranches": [
+          {
+            "claims": [
+              {
+                "account": {
+                  "lastClaimedTranche": null
+                },
+                "amount": "20.22",
+                "claimed": false
+              }
+            ],
+            "merkleRoot": "0x893c9672ae7f772acf9e4f3f0eb86f071ced0ab52b2fc445d7147c2309d74024",
+            "trancheId": 0,
+            "uri": "ipfs://QmXAJS3xJLgnttfPzbD6G38bxMgEJ5me4MzFjXy1BiSDU2"
+          }
+        ]
+      }
+    ]
+  }
+}
+```

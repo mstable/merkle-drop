@@ -4,6 +4,7 @@ import chaiAsPromised from 'chai-as-promised'
 import { solidity } from 'ethereum-waffle'
 import { BigNumber } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-with-address'
+import { ZERO_ADDRESS } from '@openzeppelin/upgrades/lib/utils/Addresses'
 
 import {
   MerkleDrop,
@@ -11,7 +12,7 @@ import {
   TToken,
   TToken__factory,
 } from '../types/generated'
-import { AccountBalancesTuple, TrancheBalances } from './types'
+import { TrancheBalances } from './types'
 import {
   createTreeWithAccounts,
   getAccountBalanceProof,
@@ -20,22 +21,11 @@ import {
 import { simpleToExactAmount } from './utils/math'
 import { expectRevert } from './utils/expectRevert'
 import { expectEvent } from './utils/expectEvent'
-import { ZERO_ADDRESS } from '@openzeppelin/upgrades/lib/utils/Addresses'
+import { getTranche } from './utils/tranches'
 
 chai.use(solidity)
 chai.use(chaiAsPromised)
 const { expect } = chai
-
-const getTranche = (
-  ...accountBalances: AccountBalancesTuple
-): TrancheBalances =>
-  accountBalances.reduce<TrancheBalances>(
-    (prev, [account, balance, claimed]) => ({
-      ...prev,
-      [account]: { balance: simpleToExactAmount(balance), claimed },
-    }),
-    {},
-  )
 
 describe('MerkleDrop', () => {
   let token: TToken

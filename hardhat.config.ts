@@ -8,7 +8,10 @@ import 'tsconfig-paths/register'
 
 import type { HardhatUserConfig } from 'hardhat/config'
 
+import './tasks.config'
+
 const hardhatConfig: HardhatUserConfig = {
+  defaultNetwork: 'kovan',
   networks: {
     hardhat: { allowUnlimitedContractSize: true, blockGasLimit: 9500000 },
     localhost: { url: 'http://localhost:8545' },
@@ -20,6 +23,14 @@ const hardhatConfig: HardhatUserConfig = {
       url: process.env.RPC_URL || '',
       accounts: process.env.ROPSTEN_PRIVATE_KEY1
         ? [process.env.ROPSTEN_PRIVATE_KEY1]
+        : [],
+      gasPrice: 30000000000,
+      blockGasLimit: 8000000,
+    },
+    kovan: {
+      url: process.env.RPC_URL || '',
+      accounts: process.env.KOVAN_MNEMONIC
+        ? { mnemonic: process.env.KOVAN_MNEMONIC }
         : [],
       gasPrice: 30000000000,
       blockGasLimit: 8000000,

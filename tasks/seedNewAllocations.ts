@@ -7,9 +7,12 @@ import { addressType, jsonBalancesType } from './params'
 import { BigNumber } from 'ethers'
 import { createTreeWithAccounts } from './merkleTree'
 
-task('addTranche', 'Adds a new tranche to an existing MerkleDrop contract')
+task(
+  'seedNewAllocations',
+  'Adds a new tranche to an existing MerkleDrop contract',
+)
   .addParam(
-    'contract',
+    'merkleDrop',
     'MerkleDrop contract address',
     undefined,
     addressType,
@@ -25,12 +28,16 @@ task('addTranche', 'Adds a new tranche to an existing MerkleDrop contract')
   .setAction(
     async (
       {
-        contract,
-        balances,
-      }: { contract: string; balances: Record<string, { balance: BigNumber }> },
+        merkleDrop,
+        balances: balancesPromise,
+      }: {
+        merkleDrop: string
+        balances: Record<string, { balance: BigNumber }>
+      },
       { ethers, network },
     ) => {
       const [deployer] = await ethers.getSigners()
+      const balances = await balancesPromise
 
       console.log(
         `Connecting using ${await deployer.getAddress()} and url ${
@@ -38,7 +45,10 @@ task('addTranche', 'Adds a new tranche to an existing MerkleDrop contract')
         }`,
       )
 
-      const merkleDrop = MerkleDrop__factory.connect(contract, deployer)
+      const merkleDropContract = MerkleDrop__factory.connect(
+        merkleDrop,
+        deployer,
+      )
 
       const merkleTree = createTreeWithAccounts(balances)
 
@@ -47,7 +57,8 @@ task('addTranche', 'Adds a new tranche to an existing MerkleDrop contract')
         BigNumber.from(0),
       )
 
-      let seedNewAllocationsTx = await merkleDrop.seedNewAllocations(
+      console.log(`Seeding new allocations`)
+      let seedNewAllocationsTx = await merkleDropContract.seedNewAllocations(
         merkleTree.hexRoot,
         totalAllocation,
       )
