@@ -1,0 +1,120 @@
+"""
+An ERC20-compatible token
+"""
+type Token @entity {
+  """
+  Token address
+  """
+  id: ID!
+
+  """
+  Token address
+  """
+  address: Bytes!
+
+  """
+  Token decimals
+  """
+  decimals: Int!
+
+  """
+  Token name
+  """
+  name: String!
+
+  """
+  Token symbol
+  """
+  symbol: String!
+
+  """
+  Merkle Drop contracts using this token
+  """
+  merkleDrops: [MerkleDrop!]! @derivedFrom(field: "token")
+}
+
+"""
+A tranche of a Merkle Drop
+"""
+type Tranche @entity {
+  """
+  merkleDrop.trancheId
+  """
+  id: ID!
+
+  trancheId: Int!
+
+  totalAllocation: BigInt!
+
+  merkleRoot: Bytes!
+
+  addedAt: Int!
+
+  uri: String
+
+  merkleDrop: MerkleDrop!
+
+  expired: Boolean!
+
+  claims: [Claim!]! @derivedFrom(field: "tranche")
+}
+
+"""
+A claim for a tranche of a Merkle Drop
+"""
+type Claim @entity {
+  """
+  tranche.account
+  """
+  id: ID!
+
+  account: Account!
+
+  merkleDrop: MerkleDrop!
+
+  tranche: Tranche!
+
+  amount: BigDecimal!
+
+  claimed: Boolean!
+
+  claimedAt: Int!
+}
+
+"""
+User account for a Merkle Drop
+"""
+type Account @entity {
+  """
+  merkleDrop.address
+  """
+  id: ID!
+
+  address: Bytes!
+
+  claims: [Claim!]! @derivedFrom(field: "account")
+
+  lastClaimedTranche: Tranche
+
+  merkleDrop: MerkleDrop!
+}
+
+"""
+A Merkle Drop contract
+"""
+type MerkleDrop @entity {
+  """
+  MerkleDrop address
+  """
+  id: ID!
+
+  token: Token!
+
+  owner: Bytes!
+
+  funders: [Bytes!]!
+
+  tranches: [Tranche!]! @derivedFrom(field: "merkleDrop")
+
+  claims: [Claim!]! @derivedFrom(field: "merkleDrop")
+}

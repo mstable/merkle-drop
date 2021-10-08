@@ -1,0 +1,7 @@
+{
+  "network": "kovan",
+  "MerkleDropTranches": {
+    "address": "0xdac842cB966d317508ccf211CE73741338B101fb",
+    "startBlock": 27572395
+  }
+}
