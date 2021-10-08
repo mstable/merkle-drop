@@ -1,8 +1,9 @@
 import 'ts-node/register'
 import 'tsconfig-paths/register'
 import { task } from 'hardhat/config'
+import { constants } from 'ethers'
 
-import { MerkleDrop__factory } from '../types/generated'
+import { MerkleDrop__factory, IERC20__factory } from '../types/generated'
 import { addressType, jsonBalancesType } from './params'
 import { BigNumber } from 'ethers'
 import { createTreeWithAccounts } from './merkleTree'
@@ -56,6 +57,24 @@ task(
         (prev, { balance }) => prev.add(balance),
         BigNumber.from(0),
       )
+
+      const token = await merkleDropContract.token()
+      const tokenContract = IERC20__factory.connect(token, deployer)
+      const allowance = await tokenContract.allowance(
+        deployer.address,
+        merkleDrop,
+      )
+
+      if (allowance.lt(totalAllocation)) {
+        console.log('Approval required; approving infinite')
+        const approvalTx = await tokenContract.approve(
+          merkleDrop,
+          constants.MaxUint256,
+        )
+        console.log(`Sending transaction ${approvalTx.hash}`)
+        await approvalTx.wait()
+        console.log('Transaction complete')
+      }
 
       console.log(`Seeding new allocations`)
       let seedNewAllocationsTx = await merkleDropContract.seedNewAllocations(
