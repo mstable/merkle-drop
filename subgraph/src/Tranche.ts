@@ -2,14 +2,14 @@ import {
   Address,
   BigInt,
   Bytes,
-  JSONValue,
   ipfs,
   json,
   BigDecimal,
 } from '@graphprotocol/graph-ts'
 
 import { Tranche as TrancheEntity } from '../generated/schema'
-import { MerkleDrop as MerkleDropContract } from '../generated/MerkleDrop/MerkleDrop'
+import { MerkleDrop as MerkleDropContract } from '../generated/templates/MerkleDrop/MerkleDrop'
+
 import { Account } from './Account'
 
 export namespace Tranche {
@@ -44,29 +44,26 @@ export namespace Tranche {
   }
 
   export function setURI(
-    merkleDrop: Address,
-    trancheId: BigInt,
+    trancheEntity: TrancheEntity,
     uri: string,
-  ): void {
-    let trancheEntity = getOrCreate(merkleDrop, trancheId)
+  ): TrancheEntity {
     trancheEntity.uri = uri
 
     if (uri.slice(0, 7) == 'ipfs://') {
       let hash = uri.slice(7)
       let maybeJsonBytes = ipfs.cat(hash)
       if (maybeJsonBytes && maybeJsonBytes.length > 0) {
-        createClaims(merkleDrop, trancheId, maybeJsonBytes as Bytes)
+        createClaims(trancheEntity, maybeJsonBytes as Bytes)
       }
     }
 
-    trancheEntity.save()
+    return trancheEntity
   }
 
-  function createClaims(
-    merkleDrop: Address,
-    trancheId: BigInt,
-    jsonBytes: Bytes,
-  ): void {
+  function createClaims(trancheEntity: TrancheEntity, jsonBytes: Bytes): void {
+    let merkleDrop = Address.fromString(trancheEntity.merkleDrop)
+    let trancheId = BigInt.fromI32(trancheEntity.trancheId)
+
     let jsonValue = json.try_fromBytes(jsonBytes)
     if (!jsonValue.isOk) return
 

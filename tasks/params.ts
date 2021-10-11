@@ -7,7 +7,13 @@ import { ERRORS } from 'hardhat/internal/core/errors-list'
 
 type Balances = Record<string, string>
 
-type BalancesBN = Record<string, { balance: BigNumber }>
+type BalancesBN = Record<string, BigNumber>
+
+export interface JSONBalances {
+  body: string
+  json: Balances
+  parsed: BalancesBN
+}
 
 export const addressType: CLIArgumentType<string> = {
   name: 'address',
@@ -25,36 +31,37 @@ export const addressType: CLIArgumentType<string> = {
   },
 }
 
-const parseJsonMapping = async (filePath: string): Promise<Balances> => {
+const parseJSONBalances = async (filePath: string): Promise<JSONBalances> => {
   const body = await fs.readFile(filePath, 'utf8')
-  return JSON.parse(body)
+
+  const json = JSON.parse(body) as Balances
+
+  const parsed = Object.fromEntries(
+    Object.entries(json).map(([account, balance]) => [
+      account,
+      utils.parseUnits(balance),
+    ]),
+  )
+
+  return { body, json, parsed }
 }
 
-export const jsonBalancesType: CLIArgumentType<Promise<BalancesBN>> = {
+export const jsonBalancesType: CLIArgumentType<Promise<JSONBalances>> = {
   name: 'JSON address => balance mapping',
-  parse: async (argName, strValue) => {
-    const mapping = await parseJsonMapping(strValue)
-    return Object.keys(mapping).reduce(
-      (prev, address) => ({
-        ...prev,
-        [address]: { balance: utils.parseUnits(mapping[address]) },
-      }),
-      {},
-    )
-  },
+  parse: async (argName, strValue) => parseJSONBalances(strValue),
   validate: async (
     argName: string,
-    balancesPromise: Promise<BalancesBN>,
+    balancesPromise: Promise<JSONBalances>,
   ): Promise<void> => {
     const balances = await balancesPromise
 
-    const isValid = Object.entries(balances).every(
-      ([address, { balance }]) => isValidAddress(address) && balance.gte(0),
+    const isValid = Object.entries(balances.parsed).every(
+      ([address, balance]) => isValidAddress(address) && balance.gte(0),
     )
 
     if (!isValid) {
       throw new HardhatError(ERRORS.ARGUMENTS.INVALID_VALUE_FOR_TYPE, {
-        value: balances,
+        value: balances.json,
         name: argName,
         type: jsonBalancesType.name,
       })

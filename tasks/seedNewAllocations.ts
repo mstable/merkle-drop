@@ -4,9 +4,11 @@ import { task } from 'hardhat/config'
 import { constants } from 'ethers'
 
 import { MerkleDrop__factory, IERC20__factory } from '../types/generated'
-import { addressType, jsonBalancesType } from './params'
+import { addressType, JSONBalances, jsonBalancesType } from './params'
 import { BigNumber } from 'ethers'
 import { createTreeWithAccounts } from './merkleTree'
+import { URL } from 'url'
+import { create } from 'ipfs-http-client'
 
 task(
   'seedNewAllocations',
@@ -33,12 +35,36 @@ task(
         balances: balancesPromise,
       }: {
         merkleDrop: string
-        balances: Record<string, { balance: BigNumber }>
+        balances: JSONBalances
       },
       { ethers, network },
     ) => {
       const [deployer] = await ethers.getSigners()
       const balances = await balancesPromise
+
+      let uri: string
+      {
+        console.log('Pinning file to IPFS')
+
+        const {
+          protocol,
+          hostname: host,
+          pathname,
+        } = new URL('https://api.thegraph.com/ipfs/')
+        const client = create({
+          protocol,
+          host,
+          port: 443,
+          apiPath: `${pathname}/api/v0/`,
+        })
+
+        const buffer = Buffer.from(balances.body)
+
+        const addResult = await client.add(buffer, { pin: true })
+        uri = `ipfs://${addResult.cid}`
+
+        console.log('Pinned file', addResult.cid)
+      }
 
       console.log(
         `Connecting using ${await deployer.getAddress()} and url ${
@@ -51,10 +77,10 @@ task(
         deployer,
       )
 
-      const merkleTree = createTreeWithAccounts(balances)
+      const merkleTree = createTreeWithAccounts(balances.parsed)
 
-      const totalAllocation = Object.values(balances).reduce(
-        (prev, { balance }) => prev.add(balance),
+      const totalAllocation = Object.values(balances.parsed).reduce(
+        (prev, balance) => prev.add(balance),
         BigNumber.from(0),
       )
 
@@ -78,8 +104,9 @@ task(
 
       console.log(`Seeding new allocations`)
       let seedNewAllocationsTx = await merkleDropContract.seedNewAllocations(
-        merkleTree.hexRoot,
+        merkleTree.getHexRoot(),
         totalAllocation,
+        uri,
       )
       console.log(`Sending transaction ${seedNewAllocationsTx.hash}`)
 

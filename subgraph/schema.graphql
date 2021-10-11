@@ -50,7 +50,7 @@ type Tranche @entity {
 
   addedAt: Int!
 
-  uri: String
+  uri: String!
 
   merkleDrop: MerkleDrop!
 

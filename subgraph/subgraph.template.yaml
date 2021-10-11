@@ -14,7 +14,10 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - SetTrancheURI
+        - MerkleDrop
+        - Account
+        - Token
+        - Tranche
       abis:
         - name: MerkleDropTranches
           file: ./abis/MerkleDropTranches.json
@@ -25,8 +28,6 @@ dataSources:
       eventHandlers:
         - event: Register(address)
           handler: handleRegister
-        - event: SetTrancheURI(indexed address,uint256,string)
-          handler: handleSetTrancheURI
       file: ./src/mappings/MerkleDropTranches.ts
 templates:
   - kind: ethereum/contract
@@ -39,12 +40,10 @@ templates:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
-        - Claimed
-        - FunderAdded
-        - FunderRemoved
-        - OwnershipTransferred
-        - TrancheAdded
-        - TrancheExpired
+        - MerkleDrop
+        - Account
+        - Token
+        - Tranche
       abis:
         - name: MerkleDrop
           file: ./abis/MerkleDrop.json
@@ -59,7 +58,7 @@ templates:
           handler: handleFunderRemoved
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleOwnershipTransferred
-        - event: TrancheAdded(uint256,bytes32,uint256)
+        - event: TrancheAdded(uint256,bytes32,uint256,string)
           handler: handleTrancheAdded
         - event: TrancheExpired(uint256)
           handler: handleTrancheExpired

@@ -1,7 +1,7 @@
 {
   "network": "ropsten",
   "MerkleDropTranches": {
-    "address": "0xCBb1cFcc42Ce0ea200fa2632405D938A3f0913c5",
-    "startBlock": 11189528
+    "address": "0x598880b71b5f6B1CD9ACce907b0d1C4334A791a6",
+    "startBlock": 11207260
   }
 }

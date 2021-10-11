@@ -14,7 +14,7 @@ contract MerkleDrop is Ownable {
   using PackedBooleanArray for PackedBooleanArray.PackedArray;
 
   event Claimed(address claimant, uint256 tranche, uint256 balance);
-  event TrancheAdded(uint256 tranche, bytes32 merkleRoot, uint256 totalAmount);
+  event TrancheAdded(uint256 tranche, bytes32 merkleRoot, uint256 totalAmount, string uri);
   event TrancheExpired(uint256 tranche);
   event FunderAdded(address indexed _address);
   event FunderRemoved(address indexed _address);
@@ -46,11 +46,17 @@ contract MerkleDrop is Ownable {
                     ADMIN
   ****************************************/
 
-  function seedNewAllocations(bytes32 _merkleRoot, uint256 _totalAllocation)
-    public
-    onlyFunder
-    returns (uint256 trancheId)
-  {
+  /**
+   * @dev Add a tranche with new allocations to claim.
+   * @param _merkleRoot  Merkle root of the tree of accounts/balances
+   * @param _totalAllocation Total tokens allocated in the tranche
+   * @param _uri URI representing the tranche, e.g. an IPFS hash of the allocations
+   */
+  function seedNewAllocations(
+    bytes32 _merkleRoot,
+    uint256 _totalAllocation,
+    string memory _uri
+  ) public onlyFunder returns (uint256 trancheId) {
     token.safeTransferFrom(msg.sender, address(this), _totalAllocation);
 
     trancheId = tranches;
@@ -58,7 +64,7 @@ contract MerkleDrop is Ownable {
 
     tranches += 1;
 
-    emit TrancheAdded(trancheId, _merkleRoot, _totalAllocation);
+    emit TrancheAdded(trancheId, _merkleRoot, _totalAllocation, _uri);
   }
 
   function expireTranche(uint256 _trancheId) public onlyFunder {

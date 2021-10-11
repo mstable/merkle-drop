@@ -5,7 +5,7 @@ import {
   OwnershipTransferred,
   TrancheAdded,
   TrancheExpired,
-} from '../../generated/MerkleDrop/MerkleDrop'
+} from '../../generated/templates/MerkleDrop/MerkleDrop'
 
 import { Account } from '../Account'
 import { MerkleDrop } from '../MerkleDrop'
@@ -56,6 +56,7 @@ export function handleTrancheAdded(event: TrancheAdded): void {
   trancheEntity.merkleRoot = event.params.merkleRoot
   trancheEntity.totalAllocation = event.params.totalAmount
   trancheEntity.addedAt = event.block.timestamp.toI32()
+  trancheEntity = Tranche.setURI(trancheEntity, event.params.uri)
   trancheEntity.save()
 }
 

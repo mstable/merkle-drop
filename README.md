@@ -15,7 +15,6 @@ This project uses Hardhat.
 ## Pro workflow
 
 - Use `MerkleDropTranches` to track `MerkleDrop` contracts on the subgraph (task: `registerMerkleDrop`)
-- Use the `addTrancheURI` task to set the URI for the tranche to an IPFS hash of the JSON balances
 - On frontends etc, use the subgraph and tranche URI to generate proofs for claims
 
 ## Hardhat Tasks

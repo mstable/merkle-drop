@@ -1,6 +1,6 @@
 import { Address } from '@graphprotocol/graph-ts'
 
-import { MerkleDrop as MerkleDropContract } from '../generated/MerkleDrop/MerkleDrop'
+import { MerkleDrop as MerkleDropContract } from '../generated/templates/MerkleDrop/MerkleDrop'
 import { MerkleDrop as MerkleDropEntity } from '../generated/schema'
 
 import { Token } from './Token'
