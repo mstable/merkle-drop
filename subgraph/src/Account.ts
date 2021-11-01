@@ -1,4 +1,4 @@
-import { Address, BigDecimal, BigInt } from '@graphprotocol/graph-ts'
+import { Address, BigInt } from '@graphprotocol/graph-ts'
 
 import {
   Claim as ClaimEntity,
@@ -42,7 +42,7 @@ export namespace Account {
     merkleDrop: Address,
     trancheId: BigInt,
     claimant: Address,
-    balance: BigDecimal,
+    balance: BigInt,
   ): ClaimEntity {
     let merkleDropEntity = MerkleDrop.getOrCreate(merkleDrop)
     let trancheEntity = Tranche.getOrCreate(merkleDrop, trancheId)

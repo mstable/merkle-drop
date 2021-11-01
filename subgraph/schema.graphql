@@ -74,7 +74,7 @@ type Claim @entity {
 
   tranche: Tranche!
 
-  amount: BigDecimal!
+  amount: BigInt!
 
   claimed: Boolean!
 
