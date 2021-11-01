@@ -1,4 +1,5 @@
 import fs from 'fs/promises'
+import fetch from 'node-fetch'
 import { BigNumber, utils } from 'ethers'
 import { CLIArgumentType } from 'hardhat/src/types/index'
 import { isValidAddress } from 'ethereumjs-util'
@@ -31,15 +32,23 @@ export const addressType: CLIArgumentType<string> = {
   },
 }
 
-const parseJSONBalances = async (filePath: string): Promise<JSONBalances> => {
-  const body = await fs.readFile(filePath, 'utf8')
+const parseJSONBalances = async (uri: string): Promise<JSONBalances> => {
+  let body: string
+
+  if (uri.startsWith('http')) {
+    const resp = await fetch(uri)
+    const buffer = await resp.buffer()
+    body = buffer.toString()
+  } else {
+    body = await fs.readFile(uri, 'utf8')
+  }
 
   const json = JSON.parse(body) as Balances
 
   const parsed = Object.fromEntries(
     Object.entries(json).map(([account, balance]) => [
       account,
-      utils.parseUnits(balance),
+      BigNumber.from(balance),
     ]),
   )
 

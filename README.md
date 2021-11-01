@@ -25,7 +25,11 @@ This project uses Hardhat.
 
 ### Seeding new allocations (adding a tranche)
 
+    # From a local file:
     yarn hardhat seedNewAllocations --merkle-drop 0x... --balances ./tranche0.json
+
+    # Or, fetch balances from a remote resource:
+    yarn hardhat seedNewAllocations --merkle-drop 0x... --balances https://raw.githubusercontent.com/mstable/stkBPT-merkle-drops/master/tranches/1/tranche-1.json
 
 ### Deploying MerkleDropTranches
 
