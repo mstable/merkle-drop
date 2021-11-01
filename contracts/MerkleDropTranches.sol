@@ -15,11 +15,4 @@ contract MerkleDropTranches is Ownable {
   function register(address _merkleDrop) public onlyOwner {
     emit Register(_merkleDrop);
   }
-
-  /**
-   * @dev For a given MerkleDrop contract, set the URI for one of its tranches.
-   * @param _merkleDrop MerkleDrop contract address
-   * @param _tranche Tranche ID
-   * @param _uri URI to associate with the tranche, e.g. an IPFS hash for a JSON document
-   */
 }
