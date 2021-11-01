@@ -17,7 +17,7 @@ export function handleClaimed(event: Claimed): void {
     event.address,
     event.params.tranche,
     event.params.claimant,
-    event.params.balance.toBigDecimal(),
+    event.params.balance,
   )
   Account.claim(claimEntity, event.block.timestamp)
 }

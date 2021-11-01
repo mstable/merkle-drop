@@ -1,11 +1,4 @@
-import {
-  Address,
-  BigInt,
-  Bytes,
-  ipfs,
-  json,
-  BigDecimal,
-} from '@graphprotocol/graph-ts'
+import { Address, BigInt, Bytes, ipfs, json } from '@graphprotocol/graph-ts'
 
 import { Tranche as TrancheEntity } from '../generated/schema'
 import { MerkleDrop as MerkleDropContract } from '../generated/templates/MerkleDrop/MerkleDrop'
@@ -73,8 +66,7 @@ export namespace Tranche {
 
       let claimant = Address.fromString(obj.key)
 
-      // Assume 18 decimals
-      let balance = BigDecimal.fromString(obj.value.toString())
+      let balance = BigInt.fromString(obj.value.toString())
 
       Account.createClaim(merkleDrop, trancheId, claimant, balance)
     }
