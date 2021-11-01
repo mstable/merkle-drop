@@ -1,14 +1,16 @@
 import 'ts-node/register'
 import 'tsconfig-paths/register'
 import { task } from 'hardhat/config'
-import { constants } from 'ethers'
+import { URL } from 'url'
+import { create } from 'ipfs-http-client'
+import { constants, BigNumber } from 'ethers'
+import { formatUnits } from 'ethers/lib/utils'
+// @ts-ignore
+import Confirm from 'prompt-confirm'
 
 import { MerkleDrop__factory, IERC20__factory } from '../types/generated'
 import { addressType, JSONBalances, jsonBalancesType } from './params'
-import { BigNumber } from 'ethers'
 import { createTreeWithAccounts } from './merkleTree'
-import { URL } from 'url'
-import { create } from 'ipfs-http-client'
 
 task(
   'seedNewAllocations',
@@ -78,14 +80,42 @@ task(
       )
 
       const merkleTree = createTreeWithAccounts(balances.parsed)
+      const hexRoot = merkleTree.getHexRoot()
 
       const totalAllocation = Object.values(balances.parsed).reduce(
         (prev, balance) => prev.add(balance),
         BigNumber.from(0),
       )
 
+      // Validate with user input
+      {
+        const totalSimple = formatUnits(totalAllocation)
+
+        const prompt = new Confirm(
+          [
+            '-'.repeat(80),
+            `Total allocation: ${totalAllocation} (${totalSimple})`,
+            `Hex root: ${hexRoot}`,
+            `URI: ${uri}`,
+            'Seed these allocations?',
+          ].join('\n'),
+        )
+
+        const confirmed = await prompt.run()
+        if (!confirmed) {
+          return
+        }
+      }
+
       const token = await merkleDropContract.token()
       const tokenContract = IERC20__factory.connect(token, deployer)
+
+      const isFunder = await merkleDropContract.funders(deployer.address)
+      if (!isFunder) {
+        console.error('Not a funder')
+        return
+      }
+
       const allowance = await tokenContract.allowance(
         deployer.address,
         merkleDrop,
@@ -104,7 +134,7 @@ task(
 
       console.log(`Seeding new allocations`)
       let seedNewAllocationsTx = await merkleDropContract.seedNewAllocations(
-        merkleTree.getHexRoot(),
+        hexRoot,
         totalAllocation,
         uri,
       )
