@@ -43,17 +43,19 @@ This project uses Hardhat.
 
     yarn hardhat addTrancheURI --merkle-drop-tranches 0x... --merkle-drop 0x... --id 0  --balances ./tranche0.json
 
-## Development
-
-### Installation in your project
+## Installation in your project
 
     yarn add @mstable/merkle-drop
+    
+## Development
 
 ### Local development
 
-    yarn install
+    yarn
+    yarn compile
+    yarn typechain
 
-## Testing
+### Testing
 
     yarn test
 
