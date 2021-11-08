@@ -1,0 +1,65 @@
+specVersion: 0.0.2
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: MerkleDropTranches
+    network: '{{network}}'
+    source:
+      abi: MerkleDropTranches
+      address: '{{MerkleDropTranches.address}}'
+      startBlock: {{MerkleDropTranches.startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - MerkleDrop
+        - Account
+        - Token
+        - Tranche
+      abis:
+        - name: MerkleDropTranches
+          file: ./abis/MerkleDropTranches.json
+        - name: MerkleDrop
+          file: ./abis/MerkleDrop.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        - event: Register(address)
+          handler: handleRegister
+      file: ./src/mappings/MerkleDropTranches.ts
+templates:
+  - kind: ethereum/contract
+    name: MerkleDrop
+    network: '{{network}}'
+    source:
+      abi: MerkleDrop
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      entities:
+        - MerkleDrop
+        - Account
+        - Token
+        - Tranche
+      abis:
+        - name: MerkleDrop
+          file: ./abis/MerkleDrop.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        - event: Claimed(address,uint256,uint256)
+          handler: handleClaimed
+        - event: FunderAdded(indexed address)
+          handler: handleFunderAdded
+        - event: FunderRemoved(indexed address)
+          handler: handleFunderRemoved
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: TrancheAdded(uint256,bytes32,uint256,string)
+          handler: handleTrancheAdded
+        - event: TrancheExpired(uint256)
+          handler: handleTrancheExpired
+      file: ./src/mappings/MerkleDrop.ts

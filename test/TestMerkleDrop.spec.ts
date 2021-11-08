@@ -4,6 +4,8 @@ import chaiAsPromised from 'chai-as-promised'
 import { solidity } from 'ethereum-waffle'
 import { BigNumber } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/dist/src/signer-with-address'
+import { ZERO_ADDRESS } from '@openzeppelin/upgrades/lib/utils/Addresses'
+import { MerkleTree } from 'merkletreejs'
 
 import {
   MerkleDrop,
@@ -11,31 +13,19 @@ import {
   TToken,
   TToken__factory,
 } from '../types/generated'
-import { AccountBalancesTuple, TrancheBalances } from './types'
+import { TrancheBalances } from './types'
 import {
   createTreeWithAccounts,
   getAccountBalanceProof,
-  MerkleTree,
 } from '../tasks/merkleTree'
 import { simpleToExactAmount } from './utils/math'
 import { expectRevert } from './utils/expectRevert'
 import { expectEvent } from './utils/expectEvent'
-import { ZERO_ADDRESS } from '@openzeppelin/upgrades/lib/utils/Addresses'
+import { getTranche } from './utils/tranches'
 
 chai.use(solidity)
 chai.use(chaiAsPromised)
 const { expect } = chai
-
-const getTranche = (
-  ...accountBalances: AccountBalancesTuple
-): TrancheBalances =>
-  accountBalances.reduce<TrancheBalances>(
-    (prev, [account, balance, claimed]) => ({
-      ...prev,
-      [account]: { balance: simpleToExactAmount(balance), claimed },
-    }),
-    {},
-  )
 
 describe('MerkleDrop', () => {
   let token: TToken
@@ -81,22 +71,32 @@ describe('MerkleDrop', () => {
       tranches.map(async (balances, index) => {
         const tranche = index.toString()
 
-        const tree = createTreeWithAccounts(balances)
-        const merkleRoot = tree.hexRoot
+        const tree = createTreeWithAccounts(
+          Object.fromEntries(
+            Object.entries(balances).map(([_account, { balance }]) => [
+              _account,
+              balance,
+            ]),
+          ),
+        )
+        const merkleRoot = tree.getHexRoot()
 
         const totalAmount = Object.values(balances).reduce(
           (prev, current) => prev.add(current.balance),
           BigNumber.from(0),
         )
 
+        const uri = `ipfs://tranche-${tranche}`
         const seedTx = await merkleDrop.seedNewAllocations(
           merkleRoot,
           totalAmount,
+          uri,
         )
         expectEvent(await seedTx.wait(), 'TrancheAdded', {
           tranche,
           merkleRoot,
           totalAmount,
+          uri,
         })
 
         // Perform claims
@@ -146,7 +146,7 @@ describe('MerkleDrop', () => {
     it('only allows funders to seed new allocations', async () => {
       const amount = simpleToExactAmount('1000')
       const tree = createTreeWithAccounts({
-        [otherAcct1.address]: { balance: amount },
+        [otherAcct1.address]: amount,
       })
 
       const merkleDropAsNonFunder = MerkleDrop__factory.connect(
@@ -159,7 +159,11 @@ describe('MerkleDrop', () => {
       await token.approve(merkleDrop.address, amount)
 
       await expectRevert(
-        merkleDropAsNonFunder.seedNewAllocations(tree.hexRoot, amount),
+        merkleDropAsNonFunder.seedNewAllocations(
+          tree.getHexRoot(),
+          amount,
+          'uri',
+        ),
         'Must be a funder',
       )
     })
@@ -249,7 +253,7 @@ describe('MerkleDrop', () => {
         const balance = simpleToExactAmount('100')
 
         const treeWithAcct2 = createTreeWithAccounts({
-          [acctWithNoClaim.address]: { balance },
+          [acctWithNoClaim.address]: balance,
         })
         const proof = getAccountBalanceProof(
           treeWithAcct2,
@@ -274,7 +278,7 @@ describe('MerkleDrop', () => {
         const balance = simpleToExactAmount('1000')
 
         const treeWithHigherBalance = createTreeWithAccounts({
-          [claimantAcct.address]: { balance },
+          [claimantAcct.address]: balance,
         })
         const proof = getAccountBalanceProof(
           treeWithHigherBalance,
@@ -453,10 +457,10 @@ describe('MerkleDrop', () => {
         ]
 
         const tree1 = createTreeWithAccounts({
-          [acctWithNoClaim.address]: { balance: balances[0] },
+          [acctWithNoClaim.address]: balances[0],
         })
         const tree2 = createTreeWithAccounts({
-          [acctWithNoClaim.address]: { balance: balances[1] },
+          [acctWithNoClaim.address]: balances[1],
         })
 
         const proof1 = getAccountBalanceProof(
@@ -493,10 +497,10 @@ describe('MerkleDrop', () => {
         ]
 
         const tree1 = createTreeWithAccounts({
-          [claimantAcct.address]: { balance: balances[0] },
+          [claimantAcct.address]: balances[0],
         })
         const tree2 = createTreeWithAccounts({
-          [claimantAcct.address]: { balance: balances[1] },
+          [claimantAcct.address]: balances[1],
         })
 
         const proof1 = getAccountBalanceProof(

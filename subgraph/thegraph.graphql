@@ -1,0 +1,20 @@
+# These stubs are defined here for the benefit of IDEs; it isn't
+# included in the build.
+
+scalar BigInt
+scalar BigDecimal
+scalar Boolean
+scalar Bytes
+scalar ID
+scalar String
+
+directive @entity on OBJECT
+
+directive @derivedFrom(field: String!) on FIELD_DEFINITION
+
+type Query {
+    ping: String
+    @deprecated(
+        reason: "https://stackoverflow.com/questions/59868942/graphql-a-schema-must-have-a-query-operation-defined"
+    )
+}

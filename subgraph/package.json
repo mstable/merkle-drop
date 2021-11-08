@@ -1,0 +1,20 @@
+{
+  "name": "@mstable/merkle-drop-subgraph",
+  "license": "MIT",
+  "scripts": {
+    "build": "graph build",
+    "codegen": "graph codegen",
+    "prepare-codegen": "func() { yarn run --silent mustache \"./config/$1.json\" subgraph.template.yaml > subgraph.yaml && yarn run codegen; }; func",
+    "prepare:mainnet": "yarn run prepare-codegen mainnet",
+    "prepare:kovan": "yarn run prepare-codegen kovan",
+    "prepare:ropsten": "yarn run prepare-codegen ropsten",
+    "deploy:kovan": "graph deploy mstable/mstable-merkle-drop-kovan --debug --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token ",
+    "deploy:ropsten": "graph deploy mstable/mstable-merkle-drop-ropsten --debug --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token ",
+    "deploy:mainnet": "graph deploy mstable/mstable-merkle-drop --debug --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --access-token "
+  },
+  "dependencies": {
+    "@graphprotocol/graph-cli": "0.22.2",
+    "@graphprotocol/graph-ts": "0.22.1",
+    "mustache": "^4.2.0"
+  }
+}

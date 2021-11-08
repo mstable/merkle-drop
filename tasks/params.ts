@@ -1,9 +1,20 @@
 import fs from 'fs/promises'
+import fetch from 'node-fetch'
 import { BigNumber, utils } from 'ethers'
 import { CLIArgumentType } from 'hardhat/src/types/index'
 import { isValidAddress } from 'ethereumjs-util'
 import { HardhatError } from 'hardhat/internal/core/errors'
 import { ERRORS } from 'hardhat/internal/core/errors-list'
+
+type Balances = Record<string, string>
+
+type BalancesBN = Record<string, BigNumber>
+
+export interface JSONBalances {
+  body: string
+  json: Balances
+  parsed: BalancesBN
+}
 
 export const addressType: CLIArgumentType<string> = {
   name: 'address',
@@ -21,42 +32,45 @@ export const addressType: CLIArgumentType<string> = {
   },
 }
 
-const parseJsonMapping = async (
-  filePath: string,
-): Promise<Record<string, string>> => {
-  const body = await fs.readFile(filePath, 'utf8')
-  return JSON.parse(body)
+const parseJSONBalances = async (uri: string): Promise<JSONBalances> => {
+  let body: string
+
+  if (uri.startsWith('http')) {
+    const resp = await fetch(uri)
+    const buffer = await resp.buffer()
+    body = buffer.toString()
+  } else {
+    body = await fs.readFile(uri, 'utf8')
+  }
+
+  const json = JSON.parse(body) as Balances
+
+  const parsed = Object.fromEntries(
+    Object.entries(json).map(([account, balance]) => [
+      account,
+      BigNumber.from(balance),
+    ]),
+  )
+
+  return { body, json, parsed }
 }
 
-export const jsonBalancesType: CLIArgumentType<
-  Promise<Record<string, { balance: BigNumber }>>
-> = {
+export const jsonBalancesType: CLIArgumentType<Promise<JSONBalances>> = {
   name: 'JSON address => balance mapping',
-  parse: async (argName, strValue) => {
-    const mapping = await parseJsonMapping(strValue)
-    return Object.keys(mapping).reduce(
-      (prev, address) => ({
-        ...prev,
-        [address]: { balance: utils.parseUnits(mapping[address]) },
-      }),
-      {},
-    )
-  },
-  validate: async (argName: string, value: unknown): Promise<void> => {
-    let isValid = false
-    const isValidFile = typeof value === 'string' && (await fs.stat(value))
+  parse: async (argName, strValue) => parseJSONBalances(strValue),
+  validate: async (
+    argName: string,
+    balancesPromise: Promise<JSONBalances>,
+  ): Promise<void> => {
+    const balances = await balancesPromise
 
-    if (isValidFile) {
-      const mapping = await parseJsonMapping(value as string)
-      isValid = Object.entries(mapping).every(
-        ([address, balance]) =>
-          isValidAddress(address) && utils.parseUnits(balance).gt(0),
-      )
-    }
+    const isValid = Object.entries(balances.parsed).every(
+      ([address, balance]) => isValidAddress(address) && balance.gte(0),
+    )
 
     if (!isValid) {
       throw new HardhatError(ERRORS.ARGUMENTS.INVALID_VALUE_FOR_TYPE, {
-        value,
+        value: balances.json,
         name: argName,
         type: jsonBalancesType.name,
       })

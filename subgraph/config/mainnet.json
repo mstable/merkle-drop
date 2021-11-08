@@ -1,0 +1,7 @@
+{
+  "network": "mainnet",
+  "MerkleDropTranches": {
+    "address": "TODO",
+    "startBlock": 1337
+  }
+}

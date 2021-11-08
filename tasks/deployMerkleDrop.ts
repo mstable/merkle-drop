@@ -5,7 +5,7 @@ import { task } from 'hardhat/config'
 import { MerkleDrop__factory } from '../types/generated'
 import { addressArrType, addressType } from './params'
 
-task('deploy', 'Deploys and initializes a MerkleDrop contract')
+task('deployMerkleDrop', 'Deploys and initializes a MerkleDrop contract')
   .addParam(
     'funders',
     'Array of funder addresses',
@@ -36,6 +36,7 @@ task('deploy', 'Deploys and initializes a MerkleDrop contract')
       const deployment = await waffle.deployContract(
         deployer,
         artifacts.readArtifactSync('MerkleDrop'),
+        [token],
       )
 
       console.log(`Deploy transaction ${deployment.deployTransaction.hash}`)
@@ -48,10 +49,13 @@ task('deploy', 'Deploys and initializes a MerkleDrop contract')
         deployer,
       )
 
-      let initTx = await merkleDrop.initialize(funders, token)
-      console.log(`Initialize transaction ${initTx.hash}`)
+      console.log('Adding funder(s)')
+      const addFunderTxs = await Promise.all(
+        funders.map((funder) => merkleDrop.addFunder(funder)),
+      )
+      await Promise.all(addFunderTxs.map((tx) => tx.wait()))
+      console.log('Added funder(s)')
 
-      await initTx.wait()
       console.log('Initialized')
     },
   )
