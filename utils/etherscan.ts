@@ -20,9 +20,6 @@ export const verifyEtherscan = async (
   // wait for the Etherscan backend to pick up the deployed contract
   await sleep(10000)
 
-  console.log(`called verifyEtherscan with ${JSON.stringify(contract)}`)
-  console.log(`hre.network.name is ${hre.network.name}`)
-
   if (hre.network.name !== 'hardhat') {
     console.log(`About to verify ${contract.address} on Etherscan`)
     await hre.run('verify:verify', contract)
