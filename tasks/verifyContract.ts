@@ -1,5 +1,4 @@
 import { task, types } from 'hardhat/config'
-// import { IERC20, IERC20__factory } from 'types/generated'
 
 import { verifyEtherscan } from '../utils/etherscan'
 
