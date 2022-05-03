@@ -19,5 +19,11 @@
   },
   "files": ["./hardhat.config.ts"],
   "exclude": ["/node_modules"],
-  "include": ["tasks/**/*.ts", "test/**/*.ts", "types/**/*.d.ts", "types/**/*.ts"]
+  "include": [
+    "tasks/**/*.ts",
+    "test/**/*.ts",
+    "types/**/*.d.ts",
+    "types/**/*.ts",
+    "utils/etherscan.ts"
+  ]
 }
