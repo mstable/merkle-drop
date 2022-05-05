@@ -16,17 +16,17 @@ const hardhatConfig: HardhatUserConfig = {
     },
     localhost: { url: 'http://localhost:8545' },
     fork: { url: 'http://localhost:7545' },
-    // export the RPC_URL environment variable to use remote nodes like Alchemy or Infura. eg
-    // export RPC_URL=https://eth-mainnet.alchemyapi.io/v2/yourApiKey
-    env: { url: process.env.RPC_URL || '' },
+    // export the NODE_URL environment variable to use remote nodes like Alchemy or Infura. eg
+    // export NODE_URL=https://eth-mainnet.alchemyapi.io/v2/yourApiKey
+    env: { url: process.env.NODE_URL || '' },
     ropsten: {
-      url: process.env.RPC_URL || '',
+      url: process.env.NODE_URL || '',
       accounts: process.env.MNEMONIC ? { mnemonic: process.env.MNEMONIC } : [],
       gasPrice: 30000000000,
       blockGasLimit: 8000000,
     },
     kovan: {
-      url: process.env.RPC_URL || '',
+      url: process.env.NODE_URL || '',
       accounts: process.env.MNEMONIC ? { mnemonic: process.env.MNEMONIC } : [],
       gasPrice: 30000000000,
       blockGasLimit: 8000000,

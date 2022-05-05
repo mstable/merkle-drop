@@ -24,7 +24,8 @@ This project uses Hardhat.
     yarn hardhat deployMerkleDrop --token 0x... --funders 0x...,0x...
 
 ### Seeding new allocations (adding a tranche)
-
+  By default this task only prepare the parameters to seed the new allocation, it does not execute it. 
+  If it is needed to execute the transaction then the flag `--isSimulation` must be set to false.
     # From a local file:
     yarn hardhat seedNewAllocations --merkle-drop 0x... --balances ./tranche0.json
 

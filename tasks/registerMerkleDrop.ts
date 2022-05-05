@@ -44,7 +44,7 @@ task('registerMerkleDrop', 'Registers a MerkleDrop contract')
         deployer,
       )
       console.log('Registering MerkleDrop')
-      let registerTx = await merkleDropTranchesContract.register(merkleDrop)
+      const registerTx = await merkleDropTranchesContract.register(merkleDrop)
       console.log(`Sending transaction ${registerTx.hash}`)
 
       await registerTx.wait()
