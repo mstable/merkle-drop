@@ -14,6 +14,9 @@ const hardhatConfig: HardhatUserConfig = {
       gasPrice: 1,
       initialBaseFeePerGas: 1,
     },
+    mainnet: {
+      url: process.env.NODE_URL || 'https://main-light.eth.linkpool.io',
+    },
     localhost: { url: 'http://localhost:8545' },
     fork: { url: 'http://localhost:7545' },
     // export the NODE_URL environment variable to use remote nodes like Alchemy or Infura. eg
@@ -53,6 +56,9 @@ const hardhatConfig: HardhatUserConfig = {
     outDir: 'types/generated',
     target: 'ethers-v5',
     alwaysGenerateOverloads: true,
+  },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_KEY || '',
   },
 }
 
